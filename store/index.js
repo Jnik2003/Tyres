@@ -4,6 +4,7 @@ export default createStore({
   state: {
     time: options(),
     fields: inputs(),
+    db: '',
   },
   getters: {
     getTime(state){
@@ -11,21 +12,45 @@ export default createStore({
     },
     getFields(state){
       return state.fields
+    },
+    getDb(state){
+      return state.db
     }
   },
   mutations: {
     updateTime(state){
       state.time = options()
+    },
+    setDb(state, entries){
+      // state.db.push(entries)
+      state.db = entries
+    },
+    clearDb(state){
+      state.db = ''
+    },
+    delEntrie(state, id){
+      console.log('del')
+      state.db = state.db.filter(item => item.id != id)
+      
     }
   },
   actions: {
-    async loadData({ commit }) {     
+    
+    async loadData({ commit }, dates) {  
+      commit("clearDb")   
       try {
         // let response = await fetch("http://php/get_data.php");// production
-        let response = await fetch("http://api/php/get_data.php");// serve
-        let products = await response.json();
-        console.log(products);
-        // commit("setItems", products);
+        let response = await fetch("http://api/php/get_data.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: JSON.stringify(dates),
+        }); // serve
+        let entries = await response.text();
+        // console.log(entries);
+        entries = JSON.parse(entries)
+        commit("setDb", entries);
       } catch (e) {
         console.log("err");
       }
@@ -33,6 +58,27 @@ export default createStore({
     updateTime({commit}){
       commit('updateTime')
     },
+    async delEntrie({commit}, id){      
+      // commit("clearDb")   
+      try {
+        // let response = await fetch("http://php/get_data.php");// production
+        let response = await fetch("http://api/php/del_data.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          // body: JSON.stringify(dates),
+          body: 'id=' + id,
+        }); // serve
+        // let resp_id = await response.text();
+        // console.log(resp_id);
+        // entries = JSON.parse(entries)
+        commit('delEntrie', id)
+      } catch (e) {
+        console.log("err");
+      }
+    },
+   
   },
  
   modules: {},
@@ -40,10 +86,10 @@ export default createStore({
 
 function options(){
   return {
-    '9:00':{
+    '09:00':{
       free: true,
     },
-    '9:30':{
+    '09:30':{
       free: true,
     },
     '10:00':{
