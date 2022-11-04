@@ -14,7 +14,8 @@
         },
         methods:{
             updDate(e){
-                this.$emit('update:date', e.target.value)
+                // this.$emit('update:date', e.target.value)
+                this.$emit('upd', e.target.value)
             }
         }
     }

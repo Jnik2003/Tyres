@@ -1,9 +1,12 @@
 <template>
   <div class="container">
-   
+    <!-- <div class="dates">
+      <input-date-comp v-model:date="dates.date1" @input="requestToDb" />
+      <input-date-comp v-model:date="dates.date2" @input="requestToDb" />
+    </div> -->
     <div class="dates">
       <label v-for="(inp, ind) in dates" :key="ind">
-        <input-date-comp :date="inp" @upd="updDate(ind, $event)" />
+        <input-date-comp :date="inp" @upd="requestToDb(ind, $event)" />
       </label>
     </div>
 
@@ -11,38 +14,34 @@
       <div class="inputs">
         <label for="select-field">Поиск по полю</label>
         <select id="select-field" v-model="selectedValue">
-          <option :value="val.value" v-for="val in values" :key="val">
-            {{ val.text }}
+          <option :value="val" v-for="val in values" :key="val">
+            {{ val }}
           </option>
         </select>
       </div>
       <div class="inputs">
         <label for="searchInp">Поиск</label>
-        <input
-          type="text"
-          id="searchInp"
-          :disabled="!selectedValue"          
-          v-model="searchValue"
-          @input="page = 1"
-        />
+        <input type="text" id="searchInp" :disabled="!selectedValue" :placeholder="selectedValue" v-model="searchValue">
       </div>
 
       <div class="inputs">
         <label for="select">Записей на стр.</label>
-        <select v-model="selectedOption" id="select">
-          <option :value="opt" v-for="opt in options" :key="opt">
-            {{ opt }}
-          </option>
-        </select>
+        <!-- <div class="select" id="select"> -->
+          <select v-model="selectedOption" @change="page = 1" id="select">
+            <option :value="opt" v-for="opt in options" :key="opt">
+              {{ opt }}
+            </option>
+          </select>
+        <!-- </div> -->
       </div>
     </div>
 
-    <h3>Всего записей {{ allEntriesLength }}</h3>
+    <h3>Всего записей {{search.length }}</h3>
     <table
       border="1"
       width="100%"
       style="border-collapse: collapse"
-      v-if="allEntriesLength > 0"
+      v-if="getData.length > 0"
     >
       <tr>
         <th>Id</th>
@@ -54,27 +53,27 @@
         <th>Удалить</th>
       </tr>
 
-      <tr v-for="data in entriesOnPage" :key="data.id">     
+      <tr v-for="data in entriesOnPage" :key="data.id">
+      <!-- <tr v-for="data in search" :key="data.id"> -->
         <td>{{ data.id }}</td>
         <td>{{ data.date }}</td>
         <td>{{ data.time }}</td>
         <td>{{ data.name }}</td>
         <td>{{ data.phone }}</td>
         <td>{{ data.email }}</td>
-        <td><button class="btn btn-del" @click="del(data.id)"></button></td>
+        <td><button class="btn btn-del" @click="del(data.id)">X</button></td>
       </tr>
     </table>
 
     <div class="pages">
       <div
         class="page"
-        v-for="p in totalPages"
-        :key="p"
-        @click="changePage(p)"
-        :class="{ active: p == this.page }"
-        v-show="allEntriesLength > 0"
+        v-for="page in totalPages"
+        :key="page"
+        @click="changePage(page)"
+        :class="{ active: page == this.page }"
       >
-        {{ p }}
+        {{ page }}
       </div>
     </div>
   </div>
@@ -96,63 +95,70 @@ export default {
       options: [10, 20, 30],
       selectedOption: 10,
       page: 1,
-      totalPages: '',
-      selectedValue: 'phone',
-      values: [
-        { text: "Телефон", value: "phone" },
-        { text: "Email", value: "email" },
-      ],
-      searchValue: "",
+      selectedValue: "",
+      values: ["phone", "email"],
+      searchValue: '',
     };
   },
   methods: {
-    updDate(ind, e) {
-      console.log(ind, e);
-      this.dates[ind] = e;
-    },
     del(id) {
       this.$store.dispatch("delEntrie", id).then(() => {
         this.entriesOnPage.length == 0 ? (this.page = this.page - 1) : false;
       });
     },
+    requestToDb(ind, newValue) {
+      this.searchValue = ''
+      this.dates[ind] = newValue;
+      this.$store.dispatch("loadData", this.dates)
+      this.page = 1;
+    },
     changePage(page) {
       this.page = page;
     },
-      
-   
+    // search(value){    
+    //   // this.getData = this.getData.filter(item => item.phone == this.searchValue)
+    //   // console.log(value, this.searchValue)
+    //   let obj = {
+    //     val: value,
+    //     search: this.searchValue
+    //   }
+    //   // this.$store.dispatch('search',obj);
+    // }
   },
   computed: {
-    loadData() {
-     this.$store.dispatch("loadData", this.dates);
-    }, 
-    getData() {   
-      this.loadData
+    getData() {      
       return this.$store.getters.getDb;
     },
-    searchAndGetData() {  
-      if(this.getData){
-        return this.getData.filter(item => item[this.selectedValue].includes(this.searchValue)) 
-      }      
+    totalPages() {
+      return Math.ceil(this.search.length / this.selectedOption);
     },
-    entriesOnPage() {  
-      this.totalPages = Math.ceil(this.searchAndGetData.length / this.selectedOption);   
-      return this.searchAndGetData.slice(
+    entriesOnPage() {
+      let myData = this.$store.getters.getDb;
+      // return myData.slice(
+      return this.search.slice(
         (this.page - 1) * this.selectedOption,
         this.selectedOption * this.page
-      )
+      );
     },
-    allEntriesLength() {
-      if(this.searchAndGetData){
-        return this.searchAndGetData.length
-      }      
-    }   
+    search(){
+      if(this.searchValue == ''){
+        return this.getData
+      }
+      else{        
+        if(this.selectedValue == 'phone'){
+          return this.getData.filter(item => item['phone'].includes(this.searchValue))
+        }
+        else if(this.selectedValue == 'email'){
+          return this.getData.filter(item => item['email'].includes(this.searchValue))
+        }      
+      }
+      
+    }
+   
   },
   mounted() {
-    this.$store.dispatch("loadData", this.dates); 
+    this.$store.dispatch("loadData", this.dates);
   },
-  watch:{
-  
-  }
 };
 </script>
 
@@ -200,7 +206,7 @@ export default {
   align-items: center;
   gap: 40px;
 }
-.inputs {
+.inputs{
   display: flex;
   flex-direction: column;
   gap: 5px;

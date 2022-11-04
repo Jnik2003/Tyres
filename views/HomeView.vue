@@ -36,12 +36,12 @@
       </div>
 
       <hr />
-      <button @click="recToBase" :disabled="!allValidateTrue()">
+      <button @click="recToBase" :disabled="!allValidateTrue">
         Записаться
       </button>
       <hr />
-      {{ rec }}
-      <hr />
+      {{ rec }}   
+      
 
       <modal-comp v-model:show="isModalVisible">
         <h3>{{ answers[responseFromServer] }}</h3>
@@ -136,11 +136,7 @@ export default {
         this.bootTimes(this.rec.date);
       }
     },
-    allValidateTrue() {
-      return this.inputs.every((item) => {
-        return item.valid == true;
-      });
-    },
+    
     async bootTimes(d) {
       try {
         // let response = await fetch("http://php/test.php");// production
@@ -172,15 +168,25 @@ export default {
     count() {
       return this.times.length - this.noFreeTime.length;
     },
+    allValidateTrue() {
+      return this.inputs.every((item) => {
+        return item.valid == true;
+      });
+    },
   },
-  mounted() {
-    // this.$store.dispatch("loadData");
-    // this.rec.date = this.inputs[0].value
-    this.inputs.forEach((item) => {
-      // console.log(item.name)
+  mounted() {    
+    this.inputs.forEach((item) => {     
       this.rec[item.name] = item.value;
     });
     this.bootTimes(this.rec.date);
+    this.$store.dispatch("loadData",  {
+        date1: new Date()
+          .toLocaleString("lt", { timeZoneName: "short" })
+          .slice(0, 10),
+        date2: new Date()
+          .toLocaleString("lt", { timeZoneName: "short" })
+          .slice(0, 10),
+      });
   },
   components: { ModalComp },
 };

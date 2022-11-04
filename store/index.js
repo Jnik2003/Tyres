@@ -32,7 +32,8 @@ export default createStore({
       console.log('del')
       state.db = state.db.filter(item => item.id != id)
       
-    }
+    },
+   
   },
   actions: {
     
@@ -77,7 +78,7 @@ export default createStore({
       } catch (e) {
         console.log("err");
       }
-    },
+    },   
    
   },
  
@@ -150,7 +151,8 @@ function inputs(){
       label: 'Выбрать дату',
       name: 'date',
       type: 'date',
-      value: new Date().toISOString().slice(0, 10),
+      // value: new Date().toISOString().slice(0, 10),
+      value: new Date().toLocaleString( 'lt', { timeZoneName: 'short' } ).slice(0, 10),
       pattern: /.+/,
       valid: true,
       activated: true
