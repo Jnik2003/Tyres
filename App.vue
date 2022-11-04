@@ -32,7 +32,11 @@ nav {
   width: 100%;
   margin: 0 auto;
 }
-button, label{
+button{
   cursor: pointer;
+}
+.wrap{
+  width: 400px;
+  margin: 0 auto;
 }
 </style>

@@ -30,10 +30,18 @@ export default createStore({
     },
     delEntrie(state, id){
       console.log('del')
-      state.db = state.db.filter(item => item.id != id)
-      
+      state.db = state.db.filter(item => item.id != id)      
     },
-   
+    resetTimeField(state){
+      state.fields.forEach(item => {
+        if(item.name === 'time'){
+          item.activated = false
+          item.valid = false
+          item.value = ''
+        }
+      })      
+    }
+
   },
   actions: {
     
@@ -60,25 +68,23 @@ export default createStore({
       commit('updateTime')
     },
     async delEntrie({commit}, id){      
-      // commit("clearDb")   
       try {
         // let response = await fetch("http://php/get_data.php");// production
         let response = await fetch("http://api/php/del_data.php", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-          },
-          // body: JSON.stringify(dates),
+          },          
           body: 'id=' + id,
-        }); // serve
-        // let resp_id = await response.text();
-        // console.log(resp_id);
-        // entries = JSON.parse(entries)
+        }); // serve       
         commit('delEntrie', id)
       } catch (e) {
         console.log("err");
       }
-    },   
+    },  
+    resetTimeField({commit}){
+      commit('resetTimeField')
+    }
    
   },
  
@@ -148,7 +154,7 @@ function options(){
 function inputs(){
   return [
     {
-      label: 'Выбрать дату',
+      label: 'Выберите дату',
       name: 'date',
       type: 'date',
       // value: new Date().toISOString().slice(0, 10),
@@ -158,7 +164,7 @@ function inputs(){
       activated: true
     },
     {
-      label: 'Выбрать время',
+      label: 'Выберите время',
       name: 'time',
       type: 'radio',
       value: '',
