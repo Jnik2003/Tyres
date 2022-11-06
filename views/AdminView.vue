@@ -1,10 +1,13 @@
 <template>
+  <div class="admin-page">
   <div class="container">
    
     <div class="dates">
-      <label v-for="(inp, ind) in dates" :key="ind">
+      <label v-for="(inp, ind) in dates" :key="ind" class="label-dates">
         <input-date-comp :date="inp" @upd="updDate(ind, $event)" />
+       
       </label>
+      <div class="validate" :class="[isValidDates ? 'green' : 'red']"></div>
     </div>
 
     <div class="filters">
@@ -29,7 +32,7 @@
 
       <div class="inputs">
         <label for="select">Записей на стр.</label>
-        <select v-model="selectedOption" id="select">
+        <select v-model="selectedOption" id="select" @change="page = 1">
           <option :value="opt" v-for="opt in options" :key="opt">
             {{ opt }}
           </option>
@@ -37,14 +40,15 @@
       </div>
     </div>
 
-    <h3>Всего записей {{ allEntriesLength }}</h3>
+    <h3 v-if="allEntriesLength > 0">Всего записей {{ allEntriesLength }}</h3>
+    <h3 v-else>На эти даты никто не записан</h3>
     <table
       border="1"
       width="100%"
       style="border-collapse: collapse"
       v-if="allEntriesLength > 0"
     >
-      <tr>
+      <tr class="tbl-header">
         <th>Id</th>
         <th>Дата</th>
         <th>Время</th>
@@ -78,6 +82,8 @@
       </div>
     </div>
   </div>
+  
+</div>
 </template>
 
 <script>
@@ -92,7 +98,7 @@ export default {
         date2: new Date()
           .toLocaleString("lt", { timeZoneName: "short" })
           .slice(0, 10),
-      },
+      },      
       options: [10, 20, 30],
       selectedOption: 10,
       page: 1,
@@ -103,27 +109,49 @@ export default {
         { text: "Email", value: "email" },
       ],
       searchValue: "",
+      isValidDates: true,
     };
   },
   methods: {
     updDate(ind, e) {
-      console.log(ind, e);
+      // console.log(ind, e);
       this.dates[ind] = e;
     },
     del(id) {
       this.$store.dispatch("delEntrie", id).then(() => {
-        this.entriesOnPage.length == 0 ? (this.page = this.page - 1) : false;
+        this.goToPreviousPage()
       });
     },
     changePage(page) {
       this.page = page;
     },
-      
+    goToPreviousPage(){
+      this.entriesOnPage.length == 0 ? (this.page = this.page - 1) : false;
+    },
+        
    
   },
   computed: {
     loadData() {
-     this.$store.dispatch("loadData", this.dates);
+      
+      // console.log(this.dates.date2 > this.dates.date1)
+      if(this.dates.date1 > this.dates.date2 || this.dates.date2 < this.dates.date1){        
+        console.log('err')
+        this.isValidDates = false;
+        // this.dates.date1 = this.dates.date2 =  new Date()
+        //   .toLocaleString("lt", { timeZoneName: "short" })
+        //   .slice(0, 10);
+          this.$store.dispatch("loadData", this.dates);
+        return false;
+      }      
+      else{
+        console.log('loadData')
+        this.isValidDates = true;
+        this.$store.dispatch("loadData", this.dates);
+      }
+     
+      
+     
     }, 
     getData() {   
       this.loadData
@@ -145,10 +173,11 @@ export default {
       if(this.searchAndGetData){
         return this.searchAndGetData.length
       }      
-    }   
+    },
+    
   },
   mounted() {
-    this.$store.dispatch("loadData", this.dates); 
+    // this.$store.dispatch("loadData", this.dates); 
   },
   watch:{
   
@@ -157,12 +186,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.admin-page{
+  padding-top: 20px;
+}
 .dates {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
   margin-bottom: 40px;
+  position: relative;
+  max-width: 550px;
+  width: 100%;
+}
+.validate{
+  top: 0;
 }
 .btn-del {
   background-color: rgb(245, 187, 187);
@@ -192,12 +236,12 @@ export default {
   cursor: pointer;
 }
 .active {
-  background-color: aquamarine;
+  background-color: #baee7e;
 }
 .filters {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items:flex-start;
   gap: 40px;
 }
 .inputs {
@@ -205,4 +249,18 @@ export default {
   flex-direction: column;
   gap: 5px;
 }
+tr:nth-child(even) {
+  background: silver;
+}
+.tbl-header{
+  background-color: #DCEDC8;
+  height: 40px;
+}
+.label-dates{
+  position: relative;
+}
+.valid-dates{
+
+}
+
 </style>

@@ -2,7 +2,7 @@
     <div class="modal" v-if="show">
         <div class="modal__body" @click.stop>
             <slot></slot>
-            <button  @click="close">Закрыть</button>
+            <button class="btn-confirm" @click="close">Закрыть</button>
         </div>
                
     </div>
@@ -43,5 +43,10 @@
     min-height: 200px;
     min-width: 300px;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
 }
+
 </style>

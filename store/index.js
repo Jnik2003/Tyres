@@ -5,6 +5,7 @@ export default createStore({
     time: options(),
     fields: inputs(),
     db: '',
+    currentDate: new Date().toLocaleString( 'lt', { timeZoneName: 'short' } ).slice(0, 10),
   },
   getters: {
     getTime(state){
@@ -15,6 +16,9 @@ export default createStore({
     },
     getDb(state){
       return state.db
+    },
+    getCurrentDate(state){
+      return state.currentDate
     }
   },
   mutations: {

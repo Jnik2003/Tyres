@@ -30,8 +30,9 @@
             </div>
 
             <div v-else>
-              <input
+              <input class="1111"
                 :type="inp.type"
+                :min="inp.type == 'date' ? $store.getters.getCurrentDate : ''"
                 v-model.trim="inp.value"
                 @input="changeValue(inp.name, inp.value, inp)"
               />
@@ -43,12 +44,18 @@
           </label>
         </div>
 
-        <hr />
-        <button class="btn-confirm" @click="recToBase" :disabled="!allValidateTrue">
-          Записаться
-        </button>
-        <hr />
-        {{ rec }}
+        <div class="btn-wrap">
+          <hr />
+          <button
+            class="btn-confirm"
+            @click="recToBase"
+            :disabled="!allValidateTrue"
+            ref="btn"
+          >
+            Записаться
+          </button>
+          <hr />
+        </div>
 
         <modal-comp v-model:show="isModalVisible">
           <h3>{{ answers[responseFromServer] }}</h3>
@@ -58,8 +65,6 @@
             <h4>Время: {{ rec.time }}</h4>
           </div>
         </modal-comp>
-
-        <hr />
       </div>
     </div>
   </div>
@@ -74,7 +79,6 @@ export default {
     return {
       rec: {
         // date: new Date().toISOString().slice(0, 10),
-        // date: this.inputs[0].value,
         time: "",
         name: "",
         phone: "",
@@ -90,12 +94,11 @@ export default {
       times: this.$store.getters.getTime,
       isModalVisible: false,
       responseFromServer: "0",
-      // isSuccessRec: false,
     };
   },
   methods: {
     async recToBase() {
-      // console.log(this.rec);
+      this.$refs["btn"].setAttribute("disabled", "disabled");
       try {
         // let response = await fetch("http://php/rec_data.php");// production
         let response = await fetch("http://api/php/rec_data.php", {
@@ -106,7 +109,6 @@ export default {
           body: JSON.stringify(this.rec),
         }); // serve
         let res = await response.text();
-        // console.log(res);
         this.responseFromServer = res;
         this.isModalVisible = true;
         this.resetInputs();
@@ -114,6 +116,7 @@ export default {
         console.log("err");
         this.responseFromServer = "2";
         this.isModalVisible = true;
+        this.$refs["btn"].removeAttribute("disabled");
       }
     },
     resetInputs() {
@@ -121,9 +124,6 @@ export default {
         item.valid = false;
         item.activated = false;
         item.value = "";
-        // item.type === 'date' ? item.value = this.rec.date : false
-        // item.type === 'date' ? item.valid = true : false
-        // item.type === 'date' ? item.activated = true : false
         if (item.type === "date") {
           item.value = this.rec.date;
           item.valid = true;
@@ -133,23 +133,21 @@ export default {
       });
     },
     changeValue(name, val, inp) {
-      console.log(name);
-      console.log(inp);
-      console.log(val)
-
-    
       this.rec[name] = val;
       inp.activated = true;
       let valid = inp.pattern.test(val);
       inp.valid = valid;
+      if (inp.name === "time") {
+        this.bootTimes(this.rec.date);
+      }
 
       if (inp.name === "date") {
-        this.rec.time = "";    
-        this.$store.dispatch('resetTimeField')
+        this.rec.time = "";
+        this.$store.dispatch("resetTimeField");
         this.bootTimes(this.rec.date);
       }
     },
-
+    // загрузка time из БД (т.е. уже занятое время)
     async bootTimes(d) {
       try {
         // let response = await fetch("http://php/test.php");// production
@@ -205,6 +203,13 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.home{
+  background-image: url('@/assets/img/bg.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding-top: 20px;
+}
 .inputs {
   display: flex;
   flex-direction: column;
@@ -214,35 +219,9 @@ label {
   position: relative;
   width: 400px;
 }
-.validate {
-  width: 20px;
-  height: 20px;
-  position: absolute;
-  top: 10px;
-  right: 3%;
-  background-color: antiquewhite;
-  border-radius: 50%;
-  background-image: url("@/assets/svg/help.svg");
-  background-size: contain;
-  transition: 0.3s;
-}
-.red {
-  background-color: lightcoral;
-  background-image: url("@/assets/svg/cancel.svg");
-  background-size: contain;
-  transition: 0.3s;
-}
-.green {
-  background-color: lightgreen;
-  background-image: url("@/assets/svg/check.svg");
-  background-size: contain;
-  transition: 0.3s;
-}
-input[type="date"] {
-  width: 200px;
-  height: 30px;
-  font-size: 20px;
-}
+
+
+
 .times {
   display: flex;
   flex-wrap: wrap;
@@ -303,29 +282,9 @@ h3 {
     background-color: transparent;
   }
 }
-input[type='text'],
-input[type='email']{
-  width: 200px;
-  height: 20px;
-  font-size: 16px;
-}
-.btn-confirm{
-  width: 200px;
-  height: 40px;
-  border: none;
-  background-color: #FF6F00;
-  font-size: 16px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: white;
-  transition: .3s;
-}
-.btn-confirm:hover{
-  background-color: #689F38;
-}
-.btn-confirm:disabled{
-  background-color: grey;
-  opacity: .5;
-  cursor: initial;
+.btn-wrap{
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
 }
 </style>
