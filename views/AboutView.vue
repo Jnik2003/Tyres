@@ -76,6 +76,8 @@ const admintext = {
 }
 const other = {
   t1: `• Можно тестировать, записываться, удалять записи`,
+  t2: `• Код на GitHub https://github.com/Jnik2003/Tyres`,
+  t3: `• Без адаптива`,
 }
 </script>
 

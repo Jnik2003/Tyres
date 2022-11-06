@@ -100,8 +100,8 @@ export default {
     async recToBase() {
       this.$refs["btn"].setAttribute("disabled", "disabled");
       try {
-        // let response = await fetch("http://php/rec_data.php");// production
         let response = await fetch("http://api/php/rec_data.php", {
+        // let response = await fetch("http://test3.jnik.s53.hhos.ru/php/rec_data.php", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -150,7 +150,7 @@ export default {
     // загрузка time из БД (т.е. уже занятое время)
     async bootTimes(d) {
       try {
-        // let response = await fetch("http://php/test.php");// production
+        // let response = await fetch("http://test3.jnik.s53.hhos.ru/php/boot_times.php", { // production
         let response = await fetch("http://api/php/boot_times.php", {
           method: "POST",
           headers: {

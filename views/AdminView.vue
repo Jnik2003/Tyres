@@ -114,7 +114,6 @@ export default {
   },
   methods: {
     updDate(ind, e) {
-      // console.log(ind, e);
       this.dates[ind] = e;
     },
     del(id) {
@@ -132,16 +131,12 @@ export default {
    
   },
   computed: {
-    loadData() {
+    loadData() {      
       
-      // console.log(this.dates.date2 > this.dates.date1)
       if(this.dates.date1 > this.dates.date2 || this.dates.date2 < this.dates.date1){        
         console.log('err')
-        this.isValidDates = false;
-        // this.dates.date1 = this.dates.date2 =  new Date()
-        //   .toLocaleString("lt", { timeZoneName: "short" })
-        //   .slice(0, 10);
-          this.$store.dispatch("loadData", this.dates);
+        this.isValidDates = false;       
+        this.$store.dispatch("loadData", this.dates);
         return false;
       }      
       else{

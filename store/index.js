@@ -52,7 +52,7 @@ export default createStore({
     async loadData({ commit }, dates) {  
       commit("clearDb")   
       try {
-        // let response = await fetch("http://php/get_data.php");// production
+        // let response = await fetch("http://test3.jnik.s53.hhos.ru/php/get_data.php", { // production
         let response = await fetch("http://api/php/get_data.php", {
           method: "POST",
           headers: {
@@ -73,7 +73,7 @@ export default createStore({
     },
     async delEntrie({commit}, id){      
       try {
-        // let response = await fetch("http://php/get_data.php");// production
+        // let response = await fetch("http://test3.jnik.s53.hhos.ru/php/del_data.php", { // production
         let response = await fetch("http://api/php/del_data.php", {
           method: "POST",
           headers: {

@@ -1,11 +1,12 @@
 <?php
 define('SERVER', 'localhost');
-// define('USER', 'pnikitinas_table');
-define('USER', 'root');
-// define('PASSWORD', 'X1gEkLGR');
-define('PASSWORD', 'root');
-// define('DB', 'pnikitinas_table');
-define('DB', 'tires');
+// define('SERVER', 'localhost');
+define('USER', 'pnikitinas_tires');
+// define('USER', 'root');
+define('PASSWORD', 'naHCcu80');
+// define('PASSWORD', 'root');
+define('DB', 'pnikitinas_tires');
+// define('DB', 'tires');
 
 $conn = connect();
 
