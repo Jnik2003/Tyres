@@ -9,17 +9,15 @@
         <div class="inputs">
           <label v-for="(inp, ind) in inputs" :key="ind" class="label">
             {{ inp.label }}
-           
+            <!-- {{inp}} -->
             <div class="times" v-if="inp.name == 'time'">
               <label
                 v-for="(time, name) in times"
                 :key="time"
-                class="label-radio"
-                :class="[[time.isActive ? 'label-time-checked' : ''], [time.free ? '' : 'label-time-disabled']]"
-                
+                class="label-radio"               
+                @click.self="drawTimeBlock($event)"
               >
-              
-                <input
+                <input 
                   type="radio"
                   name="time"
                   :disabled="!time.free"
@@ -33,8 +31,7 @@
             </div>
 
             <div v-else>
-              <input
-                class="1111"
+              <input 
                 :type="inp.type"
                 :min="inp.type == 'date' ? $store.getters.getCurrentDate : ''"
                 v-model.trim="inp.value"
@@ -98,6 +95,7 @@ export default {
       times: this.$store.getters.getTime,
       isModalVisible: false,
       responseFromServer: "0",
+      nowSelectedTime: '00:00'
     };
   },
   methods: {
@@ -105,7 +103,7 @@ export default {
       this.$refs["btn"].setAttribute("disabled", "disabled");
       try {
         let response = await fetch("http://api/php/rec_data.php", {
-          // let response = await fetch("http://test3.jnik.s53.hhos.ru/php/rec_data.php", {
+        // let response = await fetch("http://test3.jnik.s53.hhos.ru/php/rec_data.php", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -136,17 +134,13 @@ export default {
         this.bootTimes(this.rec.date);
       });
     },
-    changeValue(name, val, inp) {
-      
+    changeValue(name, val, inp, e) {
       this.rec[name] = val;
       inp.activated = true;
       let valid = inp.pattern.test(val);
       inp.valid = valid;
       if (inp.name === "time") {
-        this.bootTimes(this.rec.date).then(() => {
-          // меняем isActive в vuex
-          this.$store.dispatch("changeIsActive", val);
-        });
+        this.bootTimes(this.rec.date)    
       }
 
       if (inp.name === "date") {
@@ -167,18 +161,32 @@ export default {
           body: "date=" + d,
         }); // serve
         this.noFreeTime = await response.json();
-        this.$store.dispatch("updateTime");
-        this.times = this.$store.getters.getTime;
-
+                
+        this.$store.dispatch("updateTime")
+        this.times = this.$store.getters.getTime;       
+        
         this.noFreeTime.forEach((item) => {
           if (this.times[item.time].free) {
             this.times[item.time].free = false;
           }
         });
+      
       } catch (e) {
         console.log("err boot");
       }
     },
+    drawTimeBlock(e){
+      // console.log(e.target.firstElementChild.value) 
+      let time = e.target.firstElementChild.value
+     this.nowSelectedTime = e.target.firstElementChild.value
+     // e.target.classList.add('time-label-checked')
+     let elem = document.querySelector(`input[value="${time}"]`)
+     console.log(elem.parentNode)
+     setTimeout(() => {
+      elem.parentNode.classList.add('time-label-checked')
+     },1200)
+    
+    }
   },
   computed: {
     inputs() {
@@ -192,6 +200,7 @@ export default {
         return item.valid == true;
       });
     },
+   
   },
   mounted() {
     this.inputs.forEach((item) => {
@@ -211,8 +220,8 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.home {
-  background-image: url("@/assets/img/bg.jpg");
+.home{
+  background-image: url('@/assets/img/bg.jpg');
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -227,6 +236,8 @@ label {
   position: relative;
   width: 400px;
 }
+
+
 
 .times {
   display: flex;
@@ -253,18 +264,26 @@ label {
   background-color: #ce93d8;
 }
 
-.label-time-checked{
-  background-color: #6a1b9a;
-  color: white;
+.label-radio:has(> input[type="radio"]:checked) {
+  // background-color: #6a1b9a;
+  // color: white;
   .selected-time {
     width: 7px;
     height: 7px;
-    background-color: lime;
+    // background-color: lime;
     border-radius: 50%;
     position: absolute;
     top: 15%;
     left: 15%;
   }
+}
+
+.time-label-checked{
+  background-color: #6a1b9a;
+  color: white;
+}
+.selected-time-checked{
+  background-color: lime;
 }
 
 input[type="radio"] {
@@ -281,8 +300,7 @@ input[type="radio"] {
 h3 {
   margin: 0;
 }
-
-.label-time-disabled, .label-time-disabled:hover{
+.label-radio:has(> input[type="radio"]:disabled) {
   background-color: #eceff1;
   cursor: initial;
   color: black;
@@ -290,8 +308,7 @@ h3 {
     background-color: transparent;
   }
 }
-
-.btn-wrap {
+.btn-wrap{
   max-width: 400px;
   width: 100%;
   padding: 20px;

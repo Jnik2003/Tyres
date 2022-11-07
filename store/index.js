@@ -44,6 +44,9 @@ export default createStore({
           item.value = ''
         }
       })      
+    },
+    changeIsActive(state, val){
+      state.time[val].isActive = true
     }
 
   },
@@ -88,6 +91,9 @@ export default createStore({
     },  
     resetTimeField({commit}){
       commit('resetTimeField')
+    },
+    changeIsActive({commit}, val){
+      commit('changeIsActive', val)
     }
    
   },
@@ -99,57 +105,75 @@ function options(){
   return {
     '09:00':{
       free: true,
+      isActive: false,
     },
     '09:30':{
       free: true,
+      isActive: false,
     },
     '10:00':{
       free: true,
+      isActive: false,
     },
     '10:30':{
       free: true,
+      isActive: false,
     },
     '11:00':{
       free: true,
+      isActive: false,
     },
     '11:30':{
       free: true,
+      isActive: false,
     },
     '12:00':{
       free: true,
+      isActive: false,
     },
     '12:30':{
       free: true,
+      isActive: false,
     },
     '13:00':{
       free: true,
+      isActive: false,
     },
     '13:30':{
       free: true,
+      isActive: false,
     },
     '14:00':{
       free: true,
+      isActive: false,
     },
     '14:30':{
       free: true,
+      isActive: false,
     },
     '15:00':{
       free: true,
+      isActive: false,
     },
     '15:30':{
       free: true,
+      isActive: false,
     },
     '16:00':{
       free: true,
+      isActive: false,
     },
     '16:30':{
       free: true,
+      isActive: false,
     },
     '17:00':{
       free: true,
+      isActive: false,
     },
     '17:30':{
       free: true,
+      isActive: false,
     },
 }
 
