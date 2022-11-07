@@ -140,7 +140,7 @@ export default {
         return false;
       }      
       else{
-        console.log('loadData')
+        // console.log('loadData')
         this.isValidDates = true;
         this.$store.dispatch("loadData", this.dates);
       }
